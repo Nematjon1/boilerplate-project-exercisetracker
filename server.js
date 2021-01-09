@@ -69,3 +69,20 @@ app.get("/api/exercise/users", function(req, res) {
     }
   })
 });
+
+app.post("/api/exercise/add", function(req, res) {
+    const {userId, description, duration, date} = req.body;
+
+    if(!ObjectID.isValid(userId)) {
+        res.json({"error": "Valid user ID required."})
+    } else if(description.length === 0 || typeof description !== "string") {
+        res.json({"error": "Description should be string and required"})
+    } else if(!+duration) {
+        res.json({"error": "Duration should be number and required"})
+    } else if(date && new Date(date).toString() === "Invalid Date") {
+        res.json({"error": "Date should be yyyy-mm-dd format"})
+    } else {
+        
+    }
+
+});
