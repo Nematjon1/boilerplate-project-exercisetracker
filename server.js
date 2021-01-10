@@ -65,7 +65,13 @@ app.get("/api/exercise/users", function(req, res) {
     if(err) {
       res.json({"error": "Something went wrong, please try later."})
     } else {
-      res.json(data);
+        let result = data.map(item => {
+            return {
+                _id: item._id,
+                username: item.username
+            }
+        })
+      res.json(result);
     }
   })
 });
