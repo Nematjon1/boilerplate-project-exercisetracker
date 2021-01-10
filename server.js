@@ -132,7 +132,40 @@ app.get("/api/exercise/log", function(req, res) {
             if(err) {
                 res.json({"error": "Internal error, please try later"});
             } else if(data) {
-                console.log("Res: ", JSON.stringify(data, null, 4));
+                let result = data.reduce((acc, item, idx) => {
+                    let logs = item.log;
+                    console.log(item);
+                    if ((from && new Date(from).toString() !== "Invalid Date")
+                    ) {
+                        logs = item.log.filter(l => {
+                            return l.date >= new Date(from).getTime();
+                        });
+                    }
+                    if ((from && new Date(from).toString() !== "Invalid Date")
+                    ) {
+                        logs = item.log.filter(l => {
+                            return l.date <= new Date(to).getTime();
+                        });
+                    }
+                    if (limit && !!+limit) {
+                        logs = logs.filter((i, idx) => {
+                            return idx < limit
+                        })
+                    }
+
+                    let fr = from && new Date(from).toGMTString();
+                    let t = to && new Date(to).toGMTString();
+                    return {
+                        username: item.username,
+                        log: logs,
+                        count: logs.length,
+                        _id: item._id,
+                        from: fr && fr,
+                        to: t && t
+                    }
+                }, {});
+                console.log("Result: ", result);
+                res.json(result);
             }
         })
     }
