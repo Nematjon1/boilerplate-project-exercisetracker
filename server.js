@@ -118,3 +118,22 @@ app.post("/api/exercise/add", function(req, res) {
     }
 
 });
+
+app.get("/api/exercise/log", function(req, res) {
+    const {userId, from, to, limit} = req.query;
+    if(!ObjectID.isValid(userId)) {
+        res.json({"error": "Invalid user ID"})
+    } else if((from && new Date(from).toString() === "Invalid Date") || to && new Date(to).toString() === "Invalid Date") {
+        res.json({"error": "Invalid from/to date"});
+    } else if(limit && !+limit) {
+        res.json({"error": "Invalid limit value"});
+    } else {
+        usersCollection.find({_id: ObjectID(userId)}).toArray((err, data) => {
+            if(err) {
+                res.json({"error": "Internal error, please try later"});
+            } else if(data) {
+                console.log("Res: ", JSON.stringify(data, null, 4));
+            }
+        })
+    }
+});
