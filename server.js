@@ -88,24 +88,30 @@ app.post("/api/exercise/add", function(req, res) {
     } else if(date && new Date(date).toString() === "Invalid Date") {
         res.json({"error": "Date should be yyyy-mm-dd format"})
     } else {
-        usersCollection.findOneAndUpdate({_id: ObjectID(userId)},{$set: {
-          log: [{
+        usersCollection.updateOne({_id: ObjectID(userId)},{$push: {
+          log: {
               description: description.trim(),
               duration: +duration,
               date: date ? new Date(date) : new Date()
-          }]
-        }}, (err, data) => {
+          }
+        }},{upsert: true}, (err, data) => {
             if(err) {
                 console.log("Update error: ", err);
                 res.json({"error": "Update error"})
             } else if(data) {
-                console.log(data, err)
-                res.json({
-                    username: data.value.username,
-                    description: data.value.log[data.value.log.length - 1].description,
-                    duration: data.value.log[data.value.log.length - 1].duration,
-                    _id: data.value._id,
-                    date: data.value.log[data.value.log.length - 1].date
+                usersCollection.find({_id: ObjectID(userId)}).toArray((err, data) => {
+                    if(err) {
+                        res.json({"error": "Could not found"})
+                    } else if(data) {  
+                        console.log("Find: ", data)              
+                        res.json({
+                            username: data[0].username,
+                            description: description.trim(),
+                            duration: +duration,
+                            _id: data[0]._id,
+                            date: date ? new Date(date).toGMTString() : new Date().toGMTString()
+                        })
+                    }
                 })
             }
         } )
